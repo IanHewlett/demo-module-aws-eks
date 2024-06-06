@@ -1,0 +1,40 @@
+name: core-platform
+title: InSpec Profile
+license: MIT
+version: 0.1.3
+supports:
+  - platform: aws
+depends:
+  - name: inspec-aws
+    url:  https://github.com/inspec/inspec-aws/archive/v1.83.60.tar.gz
+inputs:
+  - name: instance
+    description: instance
+    type: String
+  - name: aws_region
+    description: aws_region
+    type: String
+  - name: cluster_eks_version
+    description: cluster_eks_version
+    type: String
+  - name: management_node_group_instance_types
+    description: management_node_group_instance_types
+    type: Array
+  - name: vpc_cni_version
+    description: vpc_cni_version
+    type: String
+  - name: coredns_version
+    description: coredns_version
+    type: String
+  - name: kube_proxy_version
+    description: kube_proxy_version
+    type: String
+  - name: aws_ebs_csi_driver_version
+    description: aws_ebs_csi_driver_version
+    type: String
+  - name: management_node_group_name
+    description: management_node_group_name
+    type: String
+  - name: management_node_group_min_size
+    description: management_node_group_min_size
+    type: String
