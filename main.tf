@@ -1,31 +1,3 @@
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", var.instance, "--region", var.aws_region, "--role-arn", "arn:aws:iam::${var.aws_account_id}:role/${var.aws_assume_role}"]
-  }
-}
-
-data "aws_vpc" "vpc" {
-  tags = {
-    Name = "${var.instance}-vpc"
-  }
-}
-
-data "aws_subnets" "cluster_private_subnets" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
-  }
-
-  tags = {
-    Tier = "private"
-  }
-}
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.15.3"
@@ -53,6 +25,7 @@ module "eks" {
   )
 
   create_kms_key = false
+
   cluster_encryption_config = {
     provider_key_arn = aws_kms_key.cluster_encyption_key.arn
     resources        = ["secrets"]
@@ -76,10 +49,13 @@ module "eks" {
     coredns = {
       addon_version     = var.coredns_version
       resolve_conflicts = "OVERWRITE"
+
       configuration_values = jsonencode({
+
         nodeSelector = {
           "node.kubernetes.io/role" = "management"
         }
+
         tolerations = [
           {
             key      = "dedicated"
@@ -95,11 +71,14 @@ module "eks" {
       addon_version            = var.aws_ebs_csi_driver_version
       resolve_conflicts        = "OVERWRITE"
       service_account_role_arn = module.ebs_csi_irsa.iam_role_arn
+
       configuration_values = jsonencode({
         controller = {
+
           nodeSelector = {
             "node.kubernetes.io/role" = "management"
           }
+
           tolerations = [
             {
               key      = "dedicated"
@@ -150,10 +129,12 @@ module "eks" {
       max_size       = var.management_node_group_max_size
       desired_size   = var.management_node_group_desired_size
       disk_size      = var.management_node_group_disk_size
+
       labels = {
         "nodegroup"               = var.management_node_group_name
         "node.kubernetes.io/role" = var.management_node_group_role
       }
+
       taints = {
         dedicated = {
           key    = "dedicated"
